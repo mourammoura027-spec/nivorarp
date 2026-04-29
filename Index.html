@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nivora RP V2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:#050505;
+color:#fff;
+overflow-x:hidden;
+}
+
+.bg{
+position:fixed;
+inset:0;
+background:url('https://i.imgur.com/8Z7X8ZL.jpeg') center/cover no-repeat;
+filter:brightness(.18);
+z-index:-2;
+}
+
+.container{max-width:1100px;margin:auto;padding:18px}
+
+.box{
+background:rgba(255,255,255,.05);
+backdrop-filter:blur(10px);
+border:1px solid rgba(255,255,255,.08);
+border-radius:16px;
+padding:18px;
+margin-bottom:15px;
+}
+
+.title{
+text-align:center;
+font-size:52px;
+font-weight:900;
+text-shadow:0 0 12px #9333ea,0 0 20px #00ff66;
+}
+
+.btn{
+padding:10px;
+border-radius:12px;
+font-weight:800;
+cursor:pointer;
+text-align:center;
+display:block;
+color:#000;
+margin:5px;
+}
+
+.green{background:#25d366}
+.gold{background:gold}
+.red{background:#ff3333;color:#fff}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+
+input{
+width:100%;
+text-align:center;
+padding:10px;
+border-radius:10px;
+background:#111;
+color:#fff;
+border:none;
+}
+
+canvas{
+position:fixed;
+inset:0;
+pointer-events:none;
+z-index:998;
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg"></div>
+<canvas id="fx"></canvas>
+
+<div class="container">
+
+<h1 class="title">NIVORA RP V2</h1>
+
+<!-- CUPOM -->
+<div class="box">
+<h3>🎟 Cupom</h3>
+<input id="cupom" placeholder="Digite cupom">
+<button class="btn gold" onclick="usarCupom()">Aplicar Cupom</button>
+</div>
+
+<!-- CASH -->
+<div class="box">
+<h3>💵 CASH</h3>
+
+<div style="display:flex;gap:8px">
+<button class="btn red" onclick="menosCash()">-</button>
+<input id="cash" value="1000" readonly>
+<button class="btn green" onclick="maisCash()">+</button>
+</div>
+
+<p>Valor: R$ <span id="vCash">1,00</span></p>
+<a id="linkCash" class="btn green" target="_blank">Comprar Cash</a>
+</div>
+
+<!-- COINS -->
+<div class="box">
+<h3>🪙 COINS</h3>
+
+<div style="display:flex;gap:8px">
+<button class="btn red" onclick="menosCoins()">-</button>
+<input id="coins" value="1000" readonly>
+<button class="btn green" onclick="maisCoins()">+</button>
+</div>
+
+<p>Valor: R$ <span id="vCoins">2,00</span></p>
+<a id="linkCoins" class="btn green" target="_blank">Comprar Coins</a>
+</div>
+
+<!-- VIP BÁSICO -->
+<div class="box">
+<h3>🥉 VIP BÁSICO</h3>
+<p>Disponível para todos os jogadores</p>
+
+<div class="grid">
+<a class="btn gold" href="https://wa.me/5544991148268">7AnjoX</a>
+<a class="btn gold" href="https://wa.me/5534991116468">7BielX</a>
+</div>
+</div>
+
+<!-- VIP SUPREMO (OCULTO / NEGOCIAÇÃO) -->
+<div class="box">
+<h3>👑 VIP SUPREMO</h3>
+
+<p style="color:gold">
+🔥 VIP EXCLUSIVO — negociação direta com os donos
+</p>
+
+<div class="grid">
+<a class="btn gold" href="https://wa.me/5544991148268?text=Quero%20negociar%20VIP%20SUPREMO">7AnjoX</a>
+<a class="btn gold" href="https://wa.me/5534991116468?text=Quero%20negociar%20VIP%20SUPREMO">7BielX</a>
+</div>
+</div>
+
+</div>
+
+<script>
+
+let cash=1000;
+let coins=1000;
+
+const cupons={
+ANJO30:30,
+BIEL40:40,
+EVENTO25:25
+};
+
+// CASH
+function maisCash(){cash+=1000;update()}
+function menosCash(){if(cash>1000){cash-=1000;update()}}
+
+// COINS
+function maisCoins(){coins+=1000;update()}
+function menosCoins(){if(coins>1000){coins-=1000;update()}}
+
+// UPDATE
+function update(){
+document.getElementById("cash").value=cash;
+document.getElementById("coins").value=coins;
+
+document.getElementById("vCash").innerText=(cash/1000).toFixed(2);
+document.getElementById("vCoins").innerText=((coins/1000)*2).toFixed(2);
+
+document.getElementById("linkCash").href=
+"https://wa.me/5544991148268?text="+encodeURIComponent("Cash "+cash);
+
+document.getElementById("linkCoins").href=
+"https://wa.me/5544991148268?text="+encodeURIComponent("Coins "+coins);
+}
+
+// CUPOM + FOGOS
+let canvas=document.getElementById("fx");
+let ctx=canvas.getContext("2d");
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+let particles=[];
+
+function usarCupom(){
+let c=document.getElementById("cupom").value.toUpperCase();
+
+if(!cupons[c])return;
+
+fogos();
+}
+
+function fogos(){
+for(let i=0;i<80;i++){
+particles.push({
+x:innerWidth/2,
+y:innerHeight/2,
+vx:(Math.random()-0.5)*10,
+vy:(Math.random()-0.5)*10,
+life:80
+});
+}
+animate();
+}
+
+function animate(){
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach((p,i)=>{
+ctx.fillStyle="hsl("+Math.random()*360+",100%,50%)";
+ctx.fillRect(p.x,p.y,3,3);
+
+p.x+=p.vx;
+p.y+=p.vy;
+p.life--;
+
+if(p.life<=0)particles.splice(i,1);
+});
+
+if(particles.length>0)requestAnimationFrame(animate);
+}
+
+update();
+
+</script>
+
+</body>
+</html>
